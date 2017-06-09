@@ -48,36 +48,22 @@ public class StatisticsTask implements Runnable {
         }
     }
 
-    public void addNewReaderTaskData(String taskName, String method, Exchanger<Long> exchanger) {
-        ReaderTaskDataHolder holder = new ReaderTaskDataHolder(taskName, method, exchanger);
+    public void addNewReaderTaskData(String taskName, Exchanger<ReaderTaskExchangeData> exchanger) {
+        ReaderTaskDataHolder holder = new ReaderTaskDataHolder(taskName, exchanger);
         dataHolder.add(holder);
-    }
-
-    private Long exchangeData(Long toExchange, ReaderTaskDataHolder holder){
-        Long result = null;
-        try {
-            result = (holder.getExchanger().exchange(0L));
-        } catch (InterruptedException e) {
-            log.log(Level.SEVERE, "Can't exchange data with "+holder.getTaskName()+" from " + thisThreadName + ". Reason: " + e);
-        }
-        return result;
     }
 
     public void run() {
         Iterator<ReaderTaskDataHolder> iterator = dataHolder.iterator();
         while (iterator.hasNext()) {
             ReaderTaskDataHolder holder = iterator.next();
-            holder.setStartingTime(exchangeData(0L, holder));
-        }
-        iterator = dataHolder.iterator();
-        while (iterator.hasNext()) {
-            ReaderTaskDataHolder holder = iterator.next();
-                holder.setEndingTime(exchangeData(0L, holder));
-        }
-        iterator = dataHolder.iterator();
-        while (iterator.hasNext()) {
-            ReaderTaskDataHolder holder = iterator.next();
-            holder.setResultChars(exchangeData(0L, holder));
+            ReaderTaskExchangeData result = null;
+            try {
+                result = (holder.getExchanger().exchange(null));
+            } catch (InterruptedException e) {
+                log.log(Level.SEVERE, "Can't exchange data with "+holder.getTaskName()+" from " + thisThreadName + ". Reason: " + e);
+            }
+            holder.setExchangedData(result);
         }
         FileWriter writer = null;
         try {
@@ -87,13 +73,13 @@ public class StatisticsTask implements Runnable {
         }
         DateFormat currentTimeFormat = new SimpleDateFormat("HH-mm-ss_MM-dd-yyyy");
         for (ReaderTaskDataHolder taskData : dataHolder) {
-            Long startData = taskData.getStartingTime();
-            Long endData = taskData.getEndingTime();
+            Long startData = taskData.getExchangedData().getStartingTime();
+            Long endData = taskData.getExchangedData().getEndingTime();
             StringBuilder builder = new StringBuilder();
             builder.append("Thread ");
             builder.append(taskData.getTaskName());
             builder.append(" was using ");
-            builder.append(taskData.getMethod());
+            builder.append(taskData.getExchangedData().getMethod());
             builder.append(" search method.\nStarted in ");
             builder.append(currentTimeFormat.format(new Date(startData)));
             builder.append(", ended in ");
@@ -101,13 +87,19 @@ public class StatisticsTask implements Runnable {
             builder.append(" and lasted for ");
             builder.append(endData - startData);
             builder.append(" milliseconds.\nResulting number of valid characters is ");
-            builder.append(taskData.getResultChars());
+            builder.append(taskData.getExchangedData().getResultChars());
             builder.append("\n");
             try {
                 writer.write(builder.toString());
             } catch (IOException e) {
                 log.log(Level.SEVERE, "Can't write data to file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
             }
+        }
+        try {
+            writer.flush();
+        writer.close();
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Can't flush data and close file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
         }
     }
 }

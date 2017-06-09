@@ -50,7 +50,6 @@ public class FileCreatorImpl implements FileCreator {
         for (int i=0; i<generateInteger(minimalLineNum); i++){
             int currentLineLength = generateInteger(minimalLineLength);
                 String resultLine = RandomStringUtils.randomAscii(currentLineLength);
-                System.out.println("RESULTLINE="+resultLine);
                 data.append(resultLine);
                 data.append("\n");
         }
@@ -60,7 +59,7 @@ public class FileCreatorImpl implements FileCreator {
         } catch (IOException e) {
             log.log(Level.SEVERE,"File can't be created. Reason: "+e);
         }
-        log.log(Level.FINE, "File was created: "+result.getName()+" with length: "+data.toString().length());
+//        log.log(Level.FINE, "File was created: "+result.getName()+" with length: "+data.toString().length());
         return result;
     }
 

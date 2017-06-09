@@ -4,52 +4,28 @@ import java.util.concurrent.Exchanger;
 
 public class ReaderTaskDataHolder {
     private String taskName;
-    private String method;
-    private long startingTime;
-    private long endingTime;
-    private long resultChars;
-    private Exchanger<Long> exchanger;
+    private ReaderTaskExchangeData exchangedData;
+    private Exchanger<ReaderTaskExchangeData> exchanger;
 
-    public ReaderTaskDataHolder(String taskName, String method, Exchanger<Long> exchanger) {
+    public ReaderTaskDataHolder(String taskName, Exchanger<ReaderTaskExchangeData> exchanger) {
         this.taskName = taskName;
-        this.method = method;
         this.exchanger = exchanger;
-    }
-
-    public void setStartingTime(long startingTime) {
-        this.startingTime = startingTime;
-    }
-
-    public void setEndingTime(long endingTime) {
-        this.endingTime = endingTime;
-    }
-
-    public void setResultChars(long resultChars) {
-        this.resultChars = resultChars;
     }
 
     public String getTaskName() {
         return taskName;
     }
 
-    public String getMethod() {
-        return method;
-    }
-
-    public Exchanger<Long> getExchanger() {
+    public Exchanger<ReaderTaskExchangeData> getExchanger() {
         return exchanger;
     }
 
-    public long getStartingTime() {
-        return startingTime;
+    public ReaderTaskExchangeData getExchangedData() {
+        return exchangedData;
     }
 
-    public long getEndingTime() {
-        return endingTime;
-    }
-
-    public long getResultChars() {
-        return resultChars;
+    public void setExchangedData(ReaderTaskExchangeData exchangedData) {
+        this.exchangedData = exchangedData;
     }
 
     @Override

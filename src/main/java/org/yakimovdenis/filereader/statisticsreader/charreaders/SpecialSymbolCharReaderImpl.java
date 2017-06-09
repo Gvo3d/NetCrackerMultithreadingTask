@@ -1,6 +1,11 @@
 package org.yakimovdenis.filereader.statisticsreader.charreaders;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 public class SpecialSymbolCharReaderImpl implements CharacterEqualiator {
+    private Logger log = LogManager.getLogManager().getLogger(SpecialSymbolCharReaderImpl.class.getName());
     private String regexString = "\\W\\D{0}";
 
     public void setRegexString(String regexString) {
@@ -8,7 +13,17 @@ public class SpecialSymbolCharReaderImpl implements CharacterEqualiator {
     }
 
     public CharacterEqualiator clone() {
-        return this.clone();
+        try {
+            return (CharacterEqualiator) super.clone();
+        } catch (CloneNotSupportedException e) {
+            log.log(Level.SEVERE, "Can't clone object with standart clone method, switching to newInstance()");
+            try {
+                return this.getClass().newInstance();
+            } catch (Exception e1) {
+                log.log(Level.SEVERE, "Can't clone object with newInstance() clone method");
+            }
+        }
+        return null;
     }
 
     public String getUsedMethod() {

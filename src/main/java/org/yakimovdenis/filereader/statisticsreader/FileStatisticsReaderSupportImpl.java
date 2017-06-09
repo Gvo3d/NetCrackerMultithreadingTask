@@ -12,15 +12,15 @@ public class FileStatisticsReaderSupportImpl implements FileStatisticsReaderSupp
     private CharacterEqualiator specialSymbolReader;
 
     public void setWordReader(CharacterEqualiator wordReader) {
-        this.wordReader = this.wordReader;
+        this.wordReader = wordReader;
     }
 
     public void setDigitReader(CharacterEqualiator digitReader) {
-        this.digitReader = this.digitReader;
+        this.digitReader = digitReader;
     }
 
     public void setSpecialSymbolReader(CharacterEqualiator specialSymbolReader) {
-        this.specialSymbolReader = this.specialSymbolReader;
+        this.specialSymbolReader = specialSymbolReader;
     }
 
     public CharacterEqualiator getWordReader() {

@@ -3,12 +3,10 @@ package org.yakimovdenis.filereader.statisticsreader;
 import org.yakimovdenis.filereader.statisticsreader.charreaders.CharacterEqualiator;
 import org.yakimovdenis.filereader.statisticsreader.support.NoFileStatisticReaderSupportException;
 import org.yakimovdenis.filereader.statisticsreader.tasks.CharacterReaderTask;
+import org.yakimovdenis.filereader.statisticsreader.tasks.ReaderTaskExchangeData;
 import org.yakimovdenis.filereader.statisticsreader.tasks.StatisticsTask;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -35,6 +33,8 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
         for (Runnable runnable: init()){
             threadPool.execute(new Thread(runnable));
         }
+        if (threadPool.isTerminated()) System.out.println("TERMINATED");
+        if (threadPool.isShutdown()) System.out.println("SHUTDOWNED");
     }
 
     private List<Runnable> init(){
@@ -42,13 +42,17 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
             throw new NoFileStatisticReaderSupportException(this.toString());
         }
         String data = null;
+        StringBuilder builder = new StringBuilder();
         try {
-            FileInputStream fileInputStream = new FileInputStream(targetFile);
-            DataInputStream dataInputStream = new DataInputStream(fileInputStream);
-            data = dataInputStream.readUTF();
+            FileReader reader = new FileReader(targetFile);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            while ((data = bufferedReader.readLine())!=null){
+                builder.append(data);
+            }
         } catch (IOException e) {
             log.log(Level.SEVERE, "Can not read targetFile "+targetFile.getName()+" from "+this.toString());
         }
+        data = builder.toString();
         if (null==data){
             log.log(Level.SEVERE, targetFile.getName()+" read a NULL from "+this.toString());
         }
@@ -63,9 +67,9 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
         newTasks[2] = support.getSpecialSymbolReader();
        List<Runnable> runnables = new ArrayList<Runnable>();
         for (CharacterEqualiator equaliator: newTasks){
-            Exchanger<Long> exchanger = new Exchanger<Long>();
+            Exchanger<ReaderTaskExchangeData> exchanger = new Exchanger<ReaderTaskExchangeData>();
             CharacterReaderTask task = new CharacterReaderTask(charactedTask, new String(data),equaliator,exchanger);
-            statisticsTask.addNewReaderTaskData(charactedTask,task.getMethod(),exchanger);
+            statisticsTask.addNewReaderTaskData(charactedTask,exchanger);
             runnables.add(task);
         }
         runnables.add(statisticsTask);
