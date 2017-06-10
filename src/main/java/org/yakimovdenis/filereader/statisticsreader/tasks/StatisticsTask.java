@@ -50,12 +50,14 @@ public class StatisticsTask implements Runnable {
         }
     }
 
+    //Method for creating ReaderTaskDataHolder that will contain data about reader thread work
     public void addNewReaderTaskData(String taskName, Exchanger<ReaderTaskExchangeData> exchanger) {
         ReaderTaskDataHolder holder = new ReaderTaskDataHolder(taskName, exchanger);
         dataHolder.add(holder);
     }
 
     public void run() {
+        init();
         Iterator<ReaderTaskDataHolder> iterator = dataHolder.iterator();
         while (iterator.hasNext()) {
             ReaderTaskDataHolder holder = iterator.next();
@@ -63,7 +65,7 @@ public class StatisticsTask implements Runnable {
             try {
                 result = (holder.getExchanger().exchange(null));
             } catch (InterruptedException e) {
-                log.log(Level.SEVERE, "Can't exchange data with "+holder.getTaskName()+" from " + thisThreadName + ". Reason: " + e);
+                log.log(Level.SEVERE, "Can't exchange data with " + holder.getTaskName() + " from " + thisThreadName + ". Reason: " + e);
             }
             holder.setExchangedData(result);
         }
@@ -71,7 +73,7 @@ public class StatisticsTask implements Runnable {
         try {
             outWriter = new FileWriter(outputFile);
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Can't manage file ("+outputFile.getName()+") for writer from " + thisThreadName + ". Reason: " + e);
+            log.log(Level.SEVERE, "Can't manage file (" + outputFile.getName() + ") for writer from " + thisThreadName + ". Reason: " + e);
         }
         DateFormat currentTimeFormat = new SimpleDateFormat("HH:mm:ss_MM-dd-yyyy");
         StringBuilder builder = new StringBuilder();
@@ -108,21 +110,21 @@ public class StatisticsTask implements Runnable {
         try {
             outWriter.write(builder.toString());
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Can't write data to file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
+            log.log(Level.SEVERE, "Can't write data to file " + outputFile.getName() + " from " + thisThreadName + ". Reason: " + e);
         }
         try {
             outWriter.flush();
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Can't flush data and close file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
+            log.log(Level.SEVERE, "Can't flush data and close file " + outputFile.getName() + " from " + thisThreadName + ". Reason: " + e);
         }
-        synchronized (notifyMonitor){
-            log.log(Level.FINE, "Statistics gathering was ended, notifying sleeping reader from "+this.toString());
+        synchronized (notifyMonitor) {
+            log.log(Level.FINE, "Statistics gathering was ended, notifying sleeping reader from " + this.toString());
             notifyMonitor.notify();
         }
         try {
             finalize();
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            log.log(Level.WARNING, "Algorithm worked fine, but throwed " + throwable + " while finalizing " + this.toString());
         }
     }
 
@@ -131,6 +133,6 @@ public class StatisticsTask implements Runnable {
         super.finalize();
         outWriter.close();
         outputFile = null;
-        log.log(Level.FINE, "Finalizing statistics thread: "+this.toString());
+        log.log(Level.FINE, "Finalizing statistics thread: " + this.toString());
     }
 }

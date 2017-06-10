@@ -30,6 +30,6 @@ public class SpecialSymbolCharReaderImpl implements CharacterEqualiator {
     }
 
     public boolean matchesCondition(Character character) {
-            return Character.toString(character).matches(regexString);
+        return Character.toString(character).matches(regexString);
     }
 }

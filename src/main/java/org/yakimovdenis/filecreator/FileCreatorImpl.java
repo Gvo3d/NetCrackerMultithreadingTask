@@ -45,25 +45,26 @@ public class FileCreatorImpl implements FileCreator {
         this.fileCreatorSeed = seed;
     }
 
-    public File doGenerate(){
-        for (int i=0; i<generateInteger(minimalLineNum); i++){
+    public File doGenerate() {
+        for (int i = 0; i < generateInteger(minimalLineNum); i++) {
             int currentLineLength = generateInteger(minimalLineLength);
-                String resultLine = RandomStringUtils.randomAscii(currentLineLength);
-                data.append(resultLine);
-                data.append("\n");
+            String resultLine = RandomStringUtils.randomAscii(currentLineLength);
+            data.append(resultLine);
+            data.append("\n");
         }
         File result = null;
         try {
             result = writeFile();
         } catch (IOException e) {
-            log.log(Level.SEVERE,"File can't be created. Reason: "+e);
+            log.log(Level.SEVERE, "File can't be created. Reason: " + e);
         }
         return result;
     }
 
-    private int generateInteger(int minimalValue){
-        int lineNum = random.nextInt(minimalValue+fileCreatorSeed);
-        if (lineNum<minimalValue) {
+    //Method for generating random integer for multiple purposes like lineLength generation of lineNum generation
+    private int generateInteger(int minimalValue) {
+        int lineNum = random.nextInt(minimalValue + fileCreatorSeed);
+        if (lineNum < minimalValue) {
             lineNum = minimalValue;
         }
         return lineNum;
@@ -71,7 +72,7 @@ public class FileCreatorImpl implements FileCreator {
 
     private File writeFile() throws IOException {
         File file = new File(fileName);
-        if (file.exists()){
+        if (file.exists()) {
             file.delete();
         }
         file.createNewFile();

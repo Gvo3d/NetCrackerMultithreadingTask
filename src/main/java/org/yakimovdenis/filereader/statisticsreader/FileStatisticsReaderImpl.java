@@ -22,7 +22,7 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
     private File targetFile;
     private FileStatisticsReaderSupport support = null;
     private ExecutorService threadPool;
-    private Object monitor = new Object();
+    private final Object monitor = new Object();
 
     public void setTargetFile(File targetFile) {
         this.targetFile = targetFile;
@@ -38,22 +38,17 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
             futures.add(threadPool.submit(runnable));
         }
         synchronized (monitor) {
-            log.log(Level.INFO, "Making reader object to wait until interrupt: "+this.toString());
+            log.log(Level.INFO, "Making reader object to wait until interrupt: " + this.toString());
             try {
                 monitor.wait();
             } catch (InterruptedException e) {
-                log.log(Level.SEVERE, "FileStatisticsReader "+this.toString()+ " from "+Thread.currentThread().getName()+" was interrupted while sleep. Something went wrong. Reason: "+e);
-            }
-        }
-        for (Future future:futures){
-            if (future.isDone()){
-                log.log(Level.FINE, "Future "+future+" is done!");
+                log.log(Level.SEVERE, "FileStatisticsReader " + this.toString() + " from " + Thread.currentThread().getName() + " was interrupted while sleep. Something went wrong. Reason: " + e);
             }
         }
         try {
             finalize();
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            log.log(Level.WARNING, "Algorithm worked fine, but throwed " + throwable + " while finalizing " + this.toString());
         }
     }
 
@@ -62,9 +57,10 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
         super.finalize();
         this.threadPool.shutdownNow();
         this.targetFile = null;
-        log.log(Level.FINE, "Finalizing reader class: "+this.toString());
+        log.log(Level.FINE, "Finalizing reader class: " + this.toString());
     }
 
+    //Method for creating FixedThreadPool, creating Runnables and fill them with data.
     private List<Runnable> init() {
         if (null == support) {
             throw new NoFileStatisticReaderSupportException(this.toString());
@@ -72,7 +68,7 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
         threadPool = Executors.newFixedThreadPool(THREADSCOUNT);
         String statisticsName = "StatisticTask";
         StatisticsTask statisticsTask = new StatisticsTask(statisticsName, monitor);
-        log.log(Level.INFO, "Creating statistics task "+statisticsName);
+        log.log(Level.INFO, "Creating statistics task " + statisticsTask.toString());
         String charactedTask = "CharReaderTask";
         CharacterEqualiator[] newTasks = new CharacterEqualiator[3];
         newTasks[0] = support.getWordReader();

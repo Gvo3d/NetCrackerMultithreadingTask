@@ -3,9 +3,6 @@ package org.yakimovdenis.filereader.statisticsreader.charreaders;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created by Gvozd on 09.06.2017.
- */
 public class AlphabetCharReaderImpl implements CharacterEqualiator {
     private static final Logger log = Logger.getLogger(AlphabetCharReaderImpl.class.getName());
 

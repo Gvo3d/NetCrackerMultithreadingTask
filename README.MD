@@ -1,7 +1,8 @@
 10.06.2017
-NetCracker courses
+NetCracker courses.
 Multithreading Task
-Designer: student Yakimov Denis
+Designer: student Yakimov Denis.
+Used JDK: 1.8.0.111 - Level 6 (Overriding in interfaces).
 
 Task:
 File Reader system, that reads automatically created file and in three threads creates three files that contains only special characters(like alphabetic/numeric/signs) in new files. Fourth thread contains specialized information about other three threads like quantity of valid characters for one task, name of thread, starting time and ending time of task.

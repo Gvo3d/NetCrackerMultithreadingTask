@@ -12,19 +12,19 @@ public class ReaderTaskDataHolder {
         this.exchanger = exchanger;
     }
 
-    public String getTaskName() {
+    String getTaskName() {
         return taskName;
     }
 
-    public Exchanger<ReaderTaskExchangeData> getExchanger() {
+    Exchanger<ReaderTaskExchangeData> getExchanger() {
         return exchanger;
     }
 
-    public ReaderTaskExchangeData getExchangedData() {
+    ReaderTaskExchangeData getExchangedData() {
         return exchangedData;
     }
 
-    public void setExchangedData(ReaderTaskExchangeData exchangedData) {
+    void setExchangedData(ReaderTaskExchangeData exchangedData) {
         this.exchangedData = exchangedData;
     }
 

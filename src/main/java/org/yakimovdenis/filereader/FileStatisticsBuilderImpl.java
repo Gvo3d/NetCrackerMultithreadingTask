@@ -2,7 +2,7 @@ package org.yakimovdenis.filereader;
 
 import org.yakimovdenis.filereader.statisticsreader.FileStatisticsReader;
 
-public class FileStatisticsBuilderImpl implements FileStatisticsBuilder{
+public class FileStatisticsBuilderImpl implements FileStatisticsBuilder {
     private FileStatisticsFactory fileStatisticsFactory;
     private FileStatisticsReaderSupportFactory fileStatisticsReaderSupportFactory;
 

@@ -11,26 +11,26 @@ import java.io.File;
 
 public class Main {
     private static final String FILENAME = "test.txt";
-    private static final int MINIMALLINELENGTH = 40;
-    private static final int MINIMALLINENUM = 15;
-    private static final int FILECREATORSEED = 100;
+    private static final int MINIMALLINELENGTH = 100;
+    private static final int MINIMALLINENUM = 60;
+    private static final int FILECREATORSEED = 400;
 
     public static void main(String[] args) {
         LoggingConfiguration.configure();
         File targetFile = createFileWithRandomContent(generateFileCreationFactory().createInstance());
-        System.out.println("Created file "+targetFile.getName());
+        System.out.println("Created file " + targetFile.getName());
         FileStatisticsReader reader = createFileStatisticsReader();
-        System.out.println("Created reader "+reader.toString());
+        System.out.println("Created reader " + reader.toString());
         reader.setTargetFile(targetFile);
         reader.calculate();
         System.out.println("Calculations done.");
     }
 
-    private static FileCreatorFactory generateFileCreationFactory(){
-       return new FileCreatorFactoryImpl();
+    private static FileCreatorFactory generateFileCreationFactory() {
+        return new FileCreatorFactoryImpl();
     }
 
-    private static File createFileWithRandomContent(FileCreator fileCreator){
+    private static File createFileWithRandomContent(FileCreator fileCreator) {
         fileCreator.setFileName(FILENAME);
         fileCreator.setMinimalLineLingth(MINIMALLINELENGTH);
         fileCreator.setMinimalLineNumber(MINIMALLINENUM);
@@ -38,7 +38,7 @@ public class Main {
         return fileCreator.doGenerate();
     }
 
-    private static FileStatisticsReader createFileStatisticsReader(){
+    private static FileStatisticsReader createFileStatisticsReader() {
         FileStatisticsFactory factory = new FileStatisticsFactoryImpl();
         FileStatisticsReaderSupportFactory supportFactory = new FileStatisticsReaderSupportFactoryImpl();
         FileStatisticsBuilder builder = new FileStatisticsBuilderImpl(factory, supportFactory);
