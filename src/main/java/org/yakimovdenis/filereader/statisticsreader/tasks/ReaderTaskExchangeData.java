@@ -5,13 +5,8 @@ public class ReaderTaskExchangeData {
     private Long endingTime;
     private Long resultChars;
     private String method;
-
-    public ReaderTaskExchangeData(Long startingTime, Long endingTime, Long resultChars, String method) {
-        this.startingTime = startingTime;
-        this.endingTime = endingTime;
-        this.resultChars = resultChars;
-        this.method = method;
-    }
+    private String outputFile;
+    private String threadId;
 
     public ReaderTaskExchangeData(Long startingTime, String method) {
         this.startingTime = startingTime;
@@ -40,5 +35,21 @@ public class ReaderTaskExchangeData {
 
     public String getMethod() {
         return method;
+    }
+
+    public String getOutputFile() {
+        return outputFile;
+    }
+
+    public void setOutputFile(String outputFile) {
+        this.outputFile = outputFile;
+    }
+
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
     }
 }

@@ -8,11 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class FileCreatorImpl implements FileCreator {
-    private Logger log = LogManager.getLogManager().getLogger(FileCreatorImpl.class.getName());
+    private static final Logger log = Logger.getLogger(FileCreatorImpl.class.getName());
     private static final String DEFAULTFILENAME = "output.txt";
     private static final int DEFAULTLINENUM = 10;
     private static final int DEFAULTLINELENGTH = 30;

@@ -11,16 +11,18 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Exchanger;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class StatisticsTask implements Runnable {
-    private Logger log = LogManager.getLogManager().getLogger(StatisticsTask.class.getName());
+    private static final Logger log = Logger.getLogger(StatisticsTask.class.getName());
     private Set<ReaderTaskDataHolder> dataHolder;
     private String thisThreadName;
     private File outputFile;
+    private FileWriter outWriter;
+    private Object notifyMonitor;
 
-    public StatisticsTask(String threadsName) {
+    public StatisticsTask(String threadsName, Object notifyMonitor) {
+        this.notifyMonitor = notifyMonitor;
         this.thisThreadName = threadsName;
         this.dataHolder = new HashSet<ReaderTaskDataHolder>();
         this.outputFile = new File(thisThreadName + "_" + Thread.currentThread().getName());
@@ -65,19 +67,30 @@ public class StatisticsTask implements Runnable {
             }
             holder.setExchangedData(result);
         }
-        FileWriter writer = null;
+        outWriter = null;
         try {
-            writer = new FileWriter(outputFile);
+            outWriter = new FileWriter(outputFile);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Can't manage file ("+outputFile.getName()+") for writer from " + thisThreadName + ". Reason: " + e);
         }
-        DateFormat currentTimeFormat = new SimpleDateFormat("HH-mm-ss_MM-dd-yyyy");
+        DateFormat currentTimeFormat = new SimpleDateFormat("HH:mm:ss_MM-dd-yyyy");
+        StringBuilder builder = new StringBuilder();
+        builder.append("Statistics thread: ");
+        builder.append(thisThreadName);
+        builder.append(" ");
+        builder.append(Thread.currentThread().getName());
+        builder.append(" ");
+        builder.append(this.toString());
+        builder.append("\nCurrent time: ");
+        builder.append(currentTimeFormat.format(new Date(System.currentTimeMillis())));
+        builder.append("\n\n");
         for (ReaderTaskDataHolder taskData : dataHolder) {
             Long startData = taskData.getExchangedData().getStartingTime();
             Long endData = taskData.getExchangedData().getEndingTime();
-            StringBuilder builder = new StringBuilder();
             builder.append("Thread ");
             builder.append(taskData.getTaskName());
+            builder.append(" ");
+            builder.append(taskData.getExchangedData().getThreadId());
             builder.append(" was using ");
             builder.append(taskData.getExchangedData().getMethod());
             builder.append(" search method.\nStarted in ");
@@ -88,18 +101,36 @@ public class StatisticsTask implements Runnable {
             builder.append(endData - startData);
             builder.append(" milliseconds.\nResulting number of valid characters is ");
             builder.append(taskData.getExchangedData().getResultChars());
-            builder.append("\n");
-            try {
-                writer.write(builder.toString());
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Can't write data to file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
-            }
+            builder.append("\nResults contains in ");
+            builder.append(taskData.getExchangedData().getOutputFile());
+            builder.append("\n\n");
         }
         try {
-            writer.flush();
-        writer.close();
+            outWriter.write(builder.toString());
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Can't write data to file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
+        }
+        try {
+            outWriter.flush();
         } catch (IOException e) {
             log.log(Level.SEVERE, "Can't flush data and close file "+outputFile.getName()+" from " + thisThreadName + ". Reason: " + e);
         }
+        synchronized (notifyMonitor){
+            log.log(Level.FINE, "Statistics gathering was ended, notifying sleeping reader from "+this.toString());
+            notifyMonitor.notify();
+        }
+        try {
+            finalize();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        outWriter.close();
+        outputFile = null;
+        log.log(Level.FINE, "Finalizing statistics thread: "+this.toString());
     }
 }

@@ -6,20 +6,23 @@ import org.yakimovdenis.filereader.statisticsreader.tasks.CharacterReaderTask;
 import org.yakimovdenis.filereader.statisticsreader.tasks.ReaderTaskExchangeData;
 import org.yakimovdenis.filereader.statisticsreader.tasks.StatisticsTask;
 
-import java.io.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class FileStatisticsReaderImpl implements FileStatisticsReader {
-    private Logger log = LogManager.getLogManager().getLogger(FileStatisticsReaderImpl.class.getName());
+    private static final Logger log = Logger.getLogger(FileStatisticsReaderImpl.class.getName());
     private static final int THREADSCOUNT = 4;
     private File targetFile;
     private FileStatisticsReaderSupport support = null;
     private ExecutorService threadPool;
+    private Object monitor = new Object();
 
     public void setTargetFile(File targetFile) {
         this.targetFile = targetFile;
@@ -30,47 +33,64 @@ public class FileStatisticsReaderImpl implements FileStatisticsReader {
     }
 
     public void calculate() {
-        for (Runnable runnable: init()){
-            threadPool.execute(new Thread(runnable));
+        List<Future> futures = new ArrayList<Future>();
+        for (Runnable runnable : init()) {
+            futures.add(threadPool.submit(runnable));
         }
-        if (threadPool.isTerminated()) System.out.println("TERMINATED");
-        if (threadPool.isShutdown()) System.out.println("SHUTDOWNED");
+        synchronized (monitor) {
+            log.log(Level.INFO, "Making reader object to wait until interrupt: "+this.toString());
+            try {
+                monitor.wait();
+            } catch (InterruptedException e) {
+                log.log(Level.SEVERE, "FileStatisticsReader "+this.toString()+ " from "+Thread.currentThread().getName()+" was interrupted while sleep. Something went wrong. Reason: "+e);
+            }
+        }
+        for (Future future:futures){
+            if (future.isDone()){
+                log.log(Level.FINE, "Future "+future+" is done!");
+            }
+        }
+        try {
+            finalize();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
 
-    private List<Runnable> init(){
-        if (null==support){
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        this.threadPool.shutdownNow();
+        this.targetFile = null;
+        log.log(Level.FINE, "Finalizing reader class: "+this.toString());
+    }
+
+    private List<Runnable> init() {
+        if (null == support) {
             throw new NoFileStatisticReaderSupportException(this.toString());
         }
-        String data = null;
-        StringBuilder builder = new StringBuilder();
-        try {
-            FileReader reader = new FileReader(targetFile);
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            while ((data = bufferedReader.readLine())!=null){
-                builder.append(data);
-            }
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Can not read targetFile "+targetFile.getName()+" from "+this.toString());
-        }
-        data = builder.toString();
-        if (null==data){
-            log.log(Level.SEVERE, targetFile.getName()+" read a NULL from "+this.toString());
-        }
-
         threadPool = Executors.newFixedThreadPool(THREADSCOUNT);
-        StatisticsTask statisticsTask = new StatisticsTask("StatisticTask");
+        String statisticsName = "StatisticTask";
+        StatisticsTask statisticsTask = new StatisticsTask(statisticsName, monitor);
+        log.log(Level.INFO, "Creating statistics task "+statisticsName);
         String charactedTask = "CharReaderTask";
-
         CharacterEqualiator[] newTasks = new CharacterEqualiator[3];
         newTasks[0] = support.getWordReader();
         newTasks[1] = support.getDigitReader();
         newTasks[2] = support.getSpecialSymbolReader();
-       List<Runnable> runnables = new ArrayList<Runnable>();
-        for (CharacterEqualiator equaliator: newTasks){
+        List<Runnable> runnables = new ArrayList<Runnable>();
+        for (CharacterEqualiator equaliator : newTasks) {
             Exchanger<ReaderTaskExchangeData> exchanger = new Exchanger<ReaderTaskExchangeData>();
-            CharacterReaderTask task = new CharacterReaderTask(charactedTask, new String(data),equaliator,exchanger);
-            statisticsTask.addNewReaderTaskData(charactedTask,exchanger);
+            CharacterReaderTask task = new CharacterReaderTask(charactedTask, targetFile, equaliator, exchanger);
+            statisticsTask.addNewReaderTaskData(charactedTask, exchanger);
             runnables.add(task);
+            StringBuilder builder = new StringBuilder();
+            builder.append("Creating reader task: ");
+            builder.append(task.toString());
+            builder.append(" with ");
+            builder.append(equaliator.getUsedMethod());
+            builder.append(" method");
+            log.log(Level.INFO, builder.toString());
         }
         runnables.add(statisticsTask);
         return runnables;

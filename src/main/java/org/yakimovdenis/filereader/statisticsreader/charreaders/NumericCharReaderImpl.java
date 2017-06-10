@@ -1,14 +1,13 @@
 package org.yakimovdenis.filereader.statisticsreader.charreaders;
 
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
  * Created by Gvozd on 09.06.2017.
  */
 public class NumericCharReaderImpl implements CharacterEqualiator {
-    private Logger log = LogManager.getLogManager().getLogger(NumericCharReaderImpl.class.getName());
+    private static final Logger log = Logger.getLogger(NumericCharReaderImpl.class.getName());
 
     public CharacterEqualiator clone() {
         try {

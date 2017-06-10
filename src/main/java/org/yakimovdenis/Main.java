@@ -5,9 +5,9 @@ import org.yakimovdenis.filecreator.FileCreatorFactory;
 import org.yakimovdenis.filecreator.FileCreatorFactoryImpl;
 import org.yakimovdenis.filereader.*;
 import org.yakimovdenis.filereader.statisticsreader.FileStatisticsReader;
+import org.yakimovdenis.logging.LoggingConfiguration;
 
-import java.io.*;
-import java.util.logging.LogManager;
+import java.io.File;
 
 public class Main {
     private static final String FILENAME = "test.txt";
@@ -16,26 +16,14 @@ public class Main {
     private static final int FILECREATORSEED = 100;
 
     public static void main(String[] args) {
-        loggerInit();
+        LoggingConfiguration.configure();
         File targetFile = createFileWithRandomContent(generateFileCreationFactory().createInstance());
+        System.out.println("Created file "+targetFile.getName());
         FileStatisticsReader reader = createFileStatisticsReader();
+        System.out.println("Created reader "+reader.toString());
         reader.setTargetFile(targetFile);
         reader.calculate();
-    }
-
-    private static void loggerInit(){
-        File propertiesFile = new File("src/main/resources/logging.properties");
-        InputStream propertiesStream = null;
-        try {
-            propertiesStream = new FileInputStream(propertiesFile);
-        } catch (FileNotFoundException e) {
-            System.err.println("There are no logging.properties file for logger.");
-        }
-        try {
-            LogManager.getLogManager().readConfiguration(propertiesStream);
-        } catch (IOException e) {
-            System.err.println("Logger wasn't able to start properly.");
-        }
+        System.out.println("Calculations done.");
     }
 
     private static FileCreatorFactory generateFileCreationFactory(){
