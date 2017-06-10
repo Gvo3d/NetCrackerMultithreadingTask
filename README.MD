@@ -6,6 +6,9 @@ Designer: student Yakimov Denis
 Task:
 File Reader system, that reads automatically created file and in three threads creates three files that contains only special characters(like alphabetic/numeric/signs) in new files. Fourth thread contains specialized information about other three threads like quantity of valid characters for one task, name of thread, starting time and ending time of task.
 
+Dependencies:
+I want to note that this project is a maven-build project. The cause of this is Apache-commons library that is needed for a proper work(Especially for RandomStringUtils.randomAscii method). Please load the dependencies for this maven project!
+
 Files:
 FileCreator - interface for creating random file.
 FileCreatorFactory - interface for factory that will create file creator.

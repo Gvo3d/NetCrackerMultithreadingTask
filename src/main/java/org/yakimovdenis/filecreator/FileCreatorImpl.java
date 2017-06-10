@@ -58,7 +58,6 @@ public class FileCreatorImpl implements FileCreator {
         } catch (IOException e) {
             log.log(Level.SEVERE,"File can't be created. Reason: "+e);
         }
-//        log.log(Level.FINE, "File was created: "+result.getName()+" with length: "+data.toString().length());
         return result;
     }
 

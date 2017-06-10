@@ -91,8 +91,6 @@ public class CharacterReaderTask implements Runnable {
             log.log(Level.SEVERE, "Can not read targetFile "+targetFile.getName()+" from "+this.toString());
         }
 
-////TODO просмотреть почему виснут потоки после завершения своей логики. В случае завершения потоков - убить их самостоятельно. Добавить джавадоки ко всем интерфейсам, добавить README.MD - файл, пробежаться по всем классам и поубирать ошибки, неточности, слегка прокомментировать методы
-
         this.exchangeDataHolder.setEndingTime(System.currentTimeMillis());
         this.exchangeDataHolder.setResultChars(validCharsCount);
         this.exchangeDataHolder.setOutputFile(outputFile.getAbsolutePath());
