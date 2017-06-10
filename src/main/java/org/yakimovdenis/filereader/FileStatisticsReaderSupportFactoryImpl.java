@@ -7,13 +7,13 @@ import org.yakimovdenis.filereader.statisticsreader.charreaders.NumericCharReade
 import org.yakimovdenis.filereader.statisticsreader.charreaders.SpecialSymbolCharReaderImpl;
 
 public class FileStatisticsReaderSupportFactoryImpl implements FileStatisticsReaderSupportFactory {
-    FileStatisticsReaderSupport support;
+    private FileStatisticsReaderSupport support;
 
     public FileStatisticsReaderSupportFactoryImpl() {
         init();
     }
 
-    public void init(){
+    private void init() {
         FileStatisticsReaderSupport statisticsReaderSupport = new FileStatisticsReaderSupportImpl();
         statisticsReaderSupport.setWordReader(new AlphabetCharReaderImpl());
         statisticsReaderSupport.setDigitReader(new NumericCharReaderImpl());

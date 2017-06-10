@@ -1,6 +1,5 @@
 package org.yakimovdenis.logging;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -12,7 +11,8 @@ public class LoggingConfiguration {
 
     public static void configure() {
         try {
-            logManager.readConfiguration(new FileInputStream("src/main/resources/logging.properties"));
+            LoggingConfiguration loggingConfiguration = new LoggingConfiguration();
+            logManager.readConfiguration(loggingConfiguration.getClass().getClassLoader().getResourceAsStream("logging.properties"));
         } catch (IOException exception) {
             LOGGER.log(Level.SEVERE, "Error in loading configuration", exception);
         }

@@ -32,4 +32,19 @@ public class SpecialSymbolCharReaderImpl implements CharacterEqualiator {
     public boolean matchesCondition(Character character) {
         return Character.toString(character).matches(regexString);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SpecialSymbolCharReaderImpl that = (SpecialSymbolCharReaderImpl) o;
+
+        return regexString != null ? regexString.equals(that.regexString) : that.regexString == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return regexString != null ? regexString.hashCode() : 0;
+    }
 }
